@@ -20,7 +20,7 @@ const Login = () => {
    console.log("Token received:", res.data.token);
    
     if (res.data.success && res.data.token) {
-       localStorage.setItem("auth", JSON.stringify({ token: res.data.token }));
+      localStorage.setItem("auth", JSON.stringify({ token: res.data.token }));
       navigate('/Dashboard');
     } else {
       alert(res.data.message || "Login failed");

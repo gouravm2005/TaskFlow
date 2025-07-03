@@ -15,7 +15,7 @@ const Home = () => {
      <svg className=' ml-6' xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="ffffff" class="injected-svg" data-src="https://cdn.hugeicons.com/icons/arrow-right-02-solid-sharp.svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" color="#ffffff">
 <path d="M14.5267 18L13.1187 16.5858L16.6882 13.0006L3.5 13.0006L3.5 11.0006L16.6886 11.0006L13.1186 7.41422L14.5266 6L20.5 12.0003L14.5267 18Z" fill="#ffffff"></path>
 </svg>
-    </div>
+  </div>
    </div>
 
     <div className='w-full bg-black text-white flex flex-col justify-center items-center gap-12'>

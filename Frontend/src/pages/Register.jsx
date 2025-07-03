@@ -26,7 +26,7 @@ const Register = () => {
     console.log(res.data);
 
     if (res.data.success) {
-    localStorage.setItem("auth", JSON.stringify({ token: res.data.token }));
+      localStorage.setItem("auth", JSON.stringify({ token: res.data.token }));
       navigate('/Dashboard');
     } else {
       alert(res.data.message || "Register failed");
