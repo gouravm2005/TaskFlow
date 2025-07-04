@@ -4,6 +4,9 @@ import Dashboard from './pages/Dashboard'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import PrivateRoute from './components/PrivateRoute'
+import AllTasks from './pages/AllTasks'
+import Calendar from './pages/Calendar'
+import Team from './pages/Team'
 import './App.css'
 
 function App() {
@@ -21,6 +24,9 @@ function App() {
       }/>
       <Route path='/Register' element={<Register/>}/>
       <Route path='/Login' element={<Login/>}/>
+      <Route path='/AllTasks' element={<AllTasks/>}/>
+      <Route path='/Calendar' element={<Calendar/>}/>
+      <Route path='/Team' element={<Team/>}/>
     </Routes>
   </Router>
   </>

@@ -77,6 +77,19 @@ export const loginUser = async (req, res) => {
  }
 }
 
+export const getprofile = async(req, res) => {
+  try {
+    const user = await userModel.findById(req.user._id).select('-password')
+    res.json({
+      firstname: user.fullname.firstname,
+      lastname: user.fullname.lastname,
+      email: user.email,
+    });
+  } catch (error) {
+    res.status(500).json({message : 'failed to fetch profile'})
+  }
+}
+
 export const logoutUser = async(req, res) =>{
 
  try {
