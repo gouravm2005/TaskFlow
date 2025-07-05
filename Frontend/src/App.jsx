@@ -7,6 +7,8 @@ import PrivateRoute from './components/PrivateRoute'
 import AllTasks from './pages/AllTasks'
 import Calendar from './pages/Calendar'
 import Team from './pages/Team'
+import Categorytask from './pages/Categorytask'
+import Task from './pages/Task'
 import './App.css'
 
 function App() {
@@ -27,6 +29,8 @@ function App() {
       <Route path='/AllTasks' element={<AllTasks/>}/>
       <Route path='/Calendar' element={<Calendar/>}/>
       <Route path='/Team' element={<Team/>}/>
+      <Route path='/Categorytask' element={<Categorytask:id/>}/>
+      <Route path='/Task' element={<Task:id/>}/>
     </Routes>
   </Router>
   </>

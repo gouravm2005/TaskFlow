@@ -1,14 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const AddTask = ({ onClose }) => {
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     title: "",
     description: "",
-    startdate: "",
-    enddate: "",
-    subtasks: [""], 
+    category: "",
+    priority: "",
+    startDate: "",
+    endDate: "",
+    subtasks: [], 
   });
+
+  useEffect(() => {
+  const auth = JSON.parse(localStorage.getItem("auth"))
+
+  if(!auth || !auth.token)
+   return 
+
+  axios.get("http://localhost:3000/api/category/all", {
+    headers: { Authorization: `Bearer ${auth.token}` }
+  }).then(res => {
+    if (res.data.success) setCategories(res.data.categories);
+  });
+}, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,10 +44,20 @@ const AddTask = ({ onClose }) => {
     e.preventDefault();
 
     try {
+      const auth = JSON.parse(localStorage.getItem("auth"))
+      if(!auth || !auth.token)
+        return;
+
+      console.log(auth.token)
+
       const res = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/task/createtask`,
         form,
-        { withCredentials: true }
+        { withCredentials: true ,
+           headers: {
+        authorization: `Bearer ${auth.token}` // Required if using token in headers
+        }
+       }
       );
       console.log("Task created:", res.data);
       onClose(); 
@@ -42,9 +68,9 @@ const AddTask = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50">
-      <div className="w-[50%] h-[80%] md:w-[50%] md:h-[80%] flex flex-col justify-center items-center rounded-md bg-white text-black font-bold p-5">
-        <h1 className="text-xl mb-4">Add Task</h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full items-center">
+      <div className="w-[60%] md:w-[40%]  flex flex-col justify-start items-center rounded-md bg-white text-black font-medium p-5">
+        <h1 className="text-xl font-bold mb-4">Add Task</h1>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full justify-start items-center">
           <input
             type="text"
             name="title"
@@ -64,6 +90,24 @@ const AddTask = ({ onClose }) => {
             className="border p-2 w-3/4"
           />
 
+          <select name="category" value={form.category} onChange={(e) => setForm({...form, category: e.target.value})} className="border p-2 w-3/4" >
+          <option value="">Select Category</option>
+          {categories.map(cat => (
+          <option key={cat._id} value={cat.name}>{cat.name}</option>
+           ))}
+          <option value="__new__">+ Create New...</option>
+          </select>
+
+          {form.category === "__new__" && (
+          <input type="text" placeholder="New Category" onChange={(e) => setForm({...form, category: e.target.value})} />
+          )}
+
+          <select name="priority" value={form.priority} onChange={(e) => setForm({...form, priority:e.target.value})} className="border p-2 w-3/4">
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+          </select>
+
           {form.subtasks.map((sub, index) => (
             <input
               key={index}
@@ -78,38 +122,42 @@ const AddTask = ({ onClose }) => {
           <button
             type="button"
             onClick={addSubtaskField}
-            className="text-sm text-blue-500"
+            className="w-28 h-8 md:w-32 md:h-8 text-sm text-white bg-blue-500 rounded"
           >
-            + Add Another Subtask
+            +  Add Subtask
           </button>
 
           <div className="flex gap-2 w-3/4">
             <input
               type="date"
-              name="startdate"
-              value={form.startdate}
+              name="startDate"
+              value={form.startDate}
               onChange={handleChange}
               className="border p-2 w-1/2"
             />
             <input
               type="date"
-              name="enddate"
-              value={form.enddate}
+              name="endDate"
+              value={form.endDate}
               onChange={handleChange}
               className="border p-2 w-1/2"
             />
           </div>
 
-          <button type="submit" className="bg-blue-600 text-white p-2 rounded">
-            Submit
-          </button>
-        </form>
+        <div className="flex w-40 justify-around">
         <button
           onClick={onClose}
-          className="mt-4 text-sm text-red-500 underline"
+          className="w-16 h-8 text-sm text-white bg-red-500 rounded"
         >
           Cancel
+        </button>  
+
+        <button type="submit" onSubmit={handleSubmit} className="bg-blue-600 w-16 h-8 text-sm text-white rounded">
+            Submit
         </button>
+        
+         </div>
+         </form> 
       </div>
     </div>
   );

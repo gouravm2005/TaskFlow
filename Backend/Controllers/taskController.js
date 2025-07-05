@@ -1,28 +1,99 @@
-import taskModel from "../models/task";
+import taskModel from "../models/task.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-export const createtask = (req, res) => {
- const {} = req.body;
+export const createtask = async (req, res) => {
+  try {
+    const { title, description, category, priority, startDate, endDate, subtasks  } = req.body;
 
- const task = taskModel.create({
+    console.log("req body", req.body);
+    console.log("req user", req.user);
 
- })
-}
+    if (!title || !endDate) {
+      return res.status(400).json({ success: false, message: "Title and End date are required" });
+    }
 
-export const edittask = (req, res) => {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: "Unauthorized user" });
+    }
 
-}
+    const task = await taskModel.create({
+      title,
+      description,
+      category,
+      priority,
+      startDate,
+      endDate,
+      subtasks,
+      user: req.user._id, // assuming auth middleware sets req.user
+    });
 
-export const removetask = (req, res) => {
- 
-}
+    console.log("✅ Task created:", task);
+    return res.status(201).json({ success: true, message: "Task created", task });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 
-export const getAlltasks = (req, res) => {
+export const gettask = async (req, res) => {
+  try {
+    const task = await taskModel.findOne({ _id: req.params.id, user: req.user._id });
+    if (!task) return res.status(404).json({ success: false, message: "Task not found" });
 
-}
+    return res.status(200).json({ success: true, task });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 
-export const getCategorytasks = (req, res) => {
+export const edittask = async (req, res) => {
+  try {
+    const updatedTask = await taskModel.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
+      req.body,
+      { new: true }
+    );
 
-}
+    if (!updatedTask) return res.status(404).json({ success: false, message: "Task not found" });
+
+    return res.status(200).json({ success: true, message: "Task updated", task: updatedTask });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const removetask = async (req, res) => {
+  try {
+    const deletedTask = await taskModel.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+
+    if (!deletedTask) return res.status(404).json({ success: false, message: "Task not found" });
+
+    return res.status(200).json({ success: true, message: "Task deleted" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAlltasks = async (req, res) => {
+  try {
+    const tasks = await taskModel.find({ user: req.user._id }).sort({ enddate: 1 });
+    return res.status(200).json({ success: true, tasks });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getCategorytasks = async (req, res) => {
+  try {
+    const categoryName = req.params.category;
+    const tasks = await taskModel.find({
+      user: req.user._id,
+      category: categoryName,
+    });
+
+    return res.status(200).json({ success: true, tasks });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 

@@ -1,24 +1,28 @@
-import userModel from "../models/user";
-import jsonWebToken from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
+// middlewares/authMiddleware.js
+import userModel from "../models/user.js";
+import jwt from "jsonwebtoken";
 
-export const AuthUser = async(req, res) => {
- const token = req.cookie.token || req.headers.Authorization?.split('')[1];
- if(!token){
-  res.status(401).json({message:'Unauthorized'})
- }
+export const AuthUser = async (req, res, next) => {
+  try {
+    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
- try {
-  const decode = jsonWebToken.verify(token, process.env.JWT_SECRET)
-  const user = userModel.findById(req.decode._id)
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
 
-  user.id = user
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  return next()
+    const user = await userModel.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized: User not found" });
+    }
 
- } catch (error) {
-  res.status(401).json({message: 'Unauthorized'})
- }
-}
+    req.user = user;
 
-
+    next();
+    
+  } catch (error) {
+    console.error("Auth Error:", error.message);
+    res.status(401).json({ message: "Unauthorized: Invalid token" });
+  }
+};

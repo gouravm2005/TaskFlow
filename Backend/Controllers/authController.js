@@ -79,6 +79,11 @@ export const loginUser = async (req, res) => {
 
 export const getprofile = async(req, res) => {
   try {
+
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "Unauthorized access" });
+    }
+
     const user = await userModel.findById(req.user._id).select('-password')
     res.json({
       firstname: user.fullname.firstname,

@@ -12,7 +12,7 @@ const Dashboard = () => {
      <div className='w-[80%]  h-full flex flex-col'>
      <Navbar openform={() => setshowform(true)}/>
      <div className='w-full h-full bg-red-700'></div>
-      {showform && <AddTask onclose={() => setshowform(false)}/>}
+      {showform && <AddTask onClose={() => setshowform(false)}/>}
      </div>
    </div>
   )
