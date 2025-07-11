@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import authRoute from './Routes/authRoutes.js'
 import taskRoute from './Routes/taskRoutes.js'
 import categoryRoute from './Routes/categoryRoutes.js'
+import dashboardRoute from './Routes/dashboardRoutes.js'
 
 dotenv.config()
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoute);
 app.use('/api/task', taskRoute);
 app.use('/api/category', categoryRoute);
+app.use('/api/dashboard', dashboardRoute);
 app.use('/',(req, res) => res.send("Hello"));
 
 export default app;

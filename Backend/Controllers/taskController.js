@@ -1,13 +1,12 @@
 import taskModel from "../models/task.js";
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import Category from "../models/category.js";
 
 export const createtask = async (req, res) => {
   try {
     const { title, description, category, priority, startDate, endDate, subtasks  } = req.body;
 
-    console.log("req body", req.body);
-    console.log("req user", req.user);
+    // console.log("req body", req.body);
+    // console.log("req user", req.user);
 
     if (!title || !endDate) {
       return res.status(400).json({ success: false, message: "Title and End date are required" });
@@ -17,18 +16,36 @@ export const createtask = async (req, res) => {
       return res.status(401).json({ success: false, message: "Unauthorized user" });
     }
 
-    const task = await taskModel.create({
+    // const task = await taskModel.create({
+    //   title,
+    //   description,
+    //   category,
+    //   priority,
+    //   startDate,
+    //   endDate,
+    //   subtasks,
+    //   user: req.user._id, // assuming auth middleware sets req.user
+    // });
+
+     const structuredSubtasks = (subtasks || []).map(title => ({
+      title,
+      isCompleted: false
+    }));
+
+    const task = new taskModel({
       title,
       description,
-      category,
-      priority,
       startDate,
       endDate,
-      subtasks,
-      user: req.user._id, // assuming auth middleware sets req.user
+      subtasks: structuredSubtasks,
+      category,
+      priority,
+      user: req.user._id,
     });
 
-    console.log("✅ Task created:", task);
+    const savedTask = await task.save();
+    console.log("Task Saved:", savedTask);
+
     return res.status(201).json({ success: true, message: "Task created", task });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -85,10 +102,17 @@ export const getAlltasks = async (req, res) => {
 
 export const getCategorytasks = async (req, res) => {
   try {
-    const categoryName = req.params.category;
+   
+    const categoryId = req.params.id;
+
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
+
     const tasks = await taskModel.find({
       user: req.user._id,
-      category: categoryName,
+      category: category.name
     });
 
     return res.status(200).json({ success: true, tasks });
@@ -96,4 +120,21 @@ export const getCategorytasks = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getNotifications = async (req, res) => {
+ try {
+  
+  const task = await taskModel.find({
+    user: req.user._id,
+    status: pending,
+  })
+
+  const title = task.title;
+  const status = task.status;
+
+  return res.status(200).json({success: true, title, status})
+ } catch (error) {
+  return res.status(500).json({success:false, message: error.message});
+ }
+}
 

@@ -3,6 +3,7 @@ import axios from "axios";
 
 const AddTask = ({ onClose }) => {
   const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState("");
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -10,21 +11,21 @@ const AddTask = ({ onClose }) => {
     priority: "",
     startDate: "",
     endDate: "",
-    subtasks: [], 
+    subtasks: [""],
   });
 
   useEffect(() => {
-  const auth = JSON.parse(localStorage.getItem("auth"))
+    const auth = JSON.parse(localStorage.getItem("auth"))
 
-  if(!auth || !auth.token)
-   return 
+    if (!auth || !auth.token)
+      return
 
-  axios.get("http://localhost:3000/api/category/all", {
-    headers: { Authorization: `Bearer ${auth.token}` }
-  }).then(res => {
-    if (res.data.success) setCategories(res.data.categories);
-  });
-}, []);
+    axios.get("http://localhost:3000/api/category/all", {
+      headers: { Authorization: `Bearer ${auth.token}` }
+    }).then(res => {
+      if (res.data.success) setCategories(res.data.categories);
+    });
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -45,7 +46,7 @@ const AddTask = ({ onClose }) => {
 
     try {
       const auth = JSON.parse(localStorage.getItem("auth"))
-      if(!auth || !auth.token)
+      if (!auth || !auth.token)
         return;
 
       console.log(auth.token)
@@ -53,14 +54,15 @@ const AddTask = ({ onClose }) => {
       const res = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/task/createtask`,
         form,
-        { withCredentials: true ,
-           headers: {
-        authorization: `Bearer ${auth.token}` // Required if using token in headers
+        {
+          withCredentials: true,
+          headers: {
+            authorization: `Bearer ${auth.token}` // Required if using token in headers
+          }
         }
-       }
       );
       console.log("Task created:", res.data);
-      onClose(); 
+      onClose();
     } catch (err) {
       console.error("Error creating task:", err);
     }
@@ -90,22 +92,42 @@ const AddTask = ({ onClose }) => {
             className="border p-2 w-3/4"
           />
 
-          <select name="category" value={form.category} onChange={(e) => setForm({...form, category: e.target.value})} className="border p-2 w-3/4" >
-          <option value="">Select Category</option>
-          {categories.map(cat => (
-          <option key={cat._id} value={cat.name}>{cat.name}</option>
-           ))}
-          <option value="__new__">+ Create New...</option>
+          <select name="category" value={form.category}
+            onChange={(e) => {
+              const selected = e.target.value;
+              if (selected === "__new__") {
+                setForm({ ...form, category: "" });
+              } else {
+                setForm({ ...form, category: selected });
+              }
+            }} className="border p-2 w-3/4" >
+            <option value="">Select Category</option>
+            {categories.map(cat => (
+              <option key={cat._id} value={cat.name}>{cat.name}</option>
+            ))}
+            <option value="__new__">+ Create New...</option>
           </select>
 
-          {form.category === "__new__" && (
-          <input type="text" placeholder="New Category" onChange={(e) => setForm({...form, category: e.target.value})} />
+          {form.category === "" && (
+            <input
+              type="text"
+              placeholder="New Category"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setForm({ ...form, category: newCategory });
+                  setNewCategory("");
+                }
+              }}
+            />
           )}
 
-          <select name="priority" value={form.priority} onChange={(e) => setForm({...form, priority:e.target.value})} className="border p-2 w-3/4">
-          <option>High</option>
-          <option>Medium</option>
-          <option>Low</option>
+          <select name="priority" value={form.priority} onChange={handleChange} className="border p-2 w-3/4">
+            <option value="">Select Priority</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
           </select>
 
           {form.subtasks.map((sub, index) => (
@@ -144,20 +166,20 @@ const AddTask = ({ onClose }) => {
             />
           </div>
 
-        <div className="flex w-40 justify-around">
-        <button
-          onClick={onClose}
-          className="w-16 h-8 text-sm text-white bg-red-500 rounded"
-        >
-          Cancel
-        </button>  
+          <div className="flex w-40 justify-around">
+            <button
+              onClick={onClose}
+              className="w-16 h-8 text-sm text-white bg-red-500 rounded"
+            >
+              Cancel
+            </button>
 
-        <button type="submit" onSubmit={handleSubmit} className="bg-blue-600 w-16 h-8 text-sm text-white rounded">
-            Submit
-        </button>
-        
-         </div>
-         </form> 
+            <button type="submit" onSubmit={handleSubmit} className="bg-blue-600 w-16 h-8 text-sm text-white rounded">
+              Submit
+            </button>
+
+          </div>
+        </form>
       </div>
     </div>
   );

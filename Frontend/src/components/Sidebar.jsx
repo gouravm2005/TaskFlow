@@ -19,7 +19,6 @@ const navigate = useNavigate();
     return
    
    if(auth){
-    console.log(auth.token)
     axios.get(`${import.meta.env.VITE_BASE_URL}/api/auth/profile`,{
       headers: {
       Authorization: `Bearer ${auth.token}`,
@@ -33,15 +32,22 @@ const navigate = useNavigate();
     headers: { Authorization: `Bearer ${auth.token}` }
   }).then(res => {
     if (res.data.success) setCategories(res.data.categories);
-  });
+  })
+  .catch(err => console.log("error in get all category", err))
 
  }, [])
 
  const handleAddCategory = async (e) => {
-  if (e.key === "Enter" && newCat) {
+  if (e.key === "Enter" && newCat.trim() !== "") {
+    const auth = JSON.parse(localStorage.getItem("auth"))
+    if(!auth || !auth.token)
+      return;
+
     await axios.post("http://localhost:3000/api/category/create", { name: newCat }, {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    });
+      headers: { authorization: `Bearer ${auth.token}` }
+    })
+    .then(res => console.log(res))
+    .catch(err => console.log("error in create a new category", err))
     setNewCat("");
     setclicked(false);
     // refresh list
@@ -49,7 +55,7 @@ const navigate = useNavigate();
 };
  
   return (
-    <div className='lg:w-[20%] sm:w-[25%] h-screen bg-black text-white border-2 border-gray-800 box-border overflow-hidden relative'>
+    <div className='w-[200px] min-w-[200px] lg:w-[20%] lg:min-w-[200px] h-screen bg-black text-white border-2 border-gray-800 box-border overflow-hidden relative'>
 
       <div className='w-full h-24 p-5 flex justify-start items-center border-b-1 border-gray-600 gap-4'>
         <img className='w-6 h-6 md:w-10 md:h-10' src="icon.svg" alt="icon" />
@@ -62,15 +68,15 @@ const navigate = useNavigate();
           <h1 className='md:text-xl text-lg font-medium'>Dashboard</h1>
         </div>
         <div onClick={() => navigate('/AllTasks')} className='flex gap-2 cursor-pointer hover:text-blue-600'>
-          <img src="task.svg" />
+          <img className='cursor-pointer' src="task.svg" />
           <h1 className='md:text-xl text-lg font-medium'>All Tasks</h1>
         </div>
           <div onClick={() => navigate('/Calendar')}  className='flex gap-2 cursor-pointer hover:text-blue-600'>
-          <img src="calendar.svg" />
+          <img className='cursor-pointer' src="calendar.svg" />
           <h1 className='md:text-xl text-lg font-medium'>Calendar</h1>
         </div>
         <div onClick={() => navigate('/Team')}  className='flex gap-2 cursor-pointer hover:text-blue-600'>
-          <img src="team.svg" />
+          <img className='cursor-pointer' src="team.svg" />
           <h1 className='md:text-xl text-lg font-medium'>Team</h1>
         </div>
       </div>
@@ -83,7 +89,7 @@ const navigate = useNavigate();
       
        <div className='w-full h-full flex flex-col text-sm font-medium p-2 gap-2'>
         {categories.map(cat => (
-          <div key={cat._id} onClick={() => navigate(`/Categorytask/${cat._id}`)}>{cat.name}</div>
+          <div key={cat._id} onClick={() => navigate(`/Categorytask/${cat._id}`)} className='w-full text-lg font-medium ml-2'>{cat.name}</div>
          ))}
 
        {clicked ? (
@@ -96,7 +102,7 @@ const navigate = useNavigate();
           onKeyDown={handleAddCategory}
          />
        ) : (
-        <div onClick={() => setclicked(true)} className='w-full text-md font-medium ml-2'>+ Add</div>
+        <div onClick={() => setclicked(true)} className='w-full align-middle text-center text-md font-medium border rounded-md bg-blue-950'>+ Add</div>
        )}
      </div>
 

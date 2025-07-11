@@ -29,8 +29,8 @@ function App() {
       <Route path='/AllTasks' element={<AllTasks/>}/>
       <Route path='/Calendar' element={<Calendar/>}/>
       <Route path='/Team' element={<Team/>}/>
-      <Route path='/Categorytask' element={<Categorytask:id/>}/>
-      <Route path='/Task' element={<Task:id/>}/>
+      <Route path="/Categorytask/:id" element={<Categorytask/>}/>
+      <Route path='/Task:id' element={<Task/>}/>
     </Routes>
   </Router>
   </>
