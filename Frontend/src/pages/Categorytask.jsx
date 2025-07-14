@@ -7,6 +7,7 @@ import AddTask from '../components/AddTask'
 import Taskcard from '../components/Taskcard'
 
 const Categorytask = () => {
+  const [panelopen, setpanelopen] = useState(true)
   const [tasks, settasks] = useState()
   const [istask, setistask] = useState(false)
    const [taskId, settaskId] = useState('')
@@ -43,39 +44,36 @@ const Categorytask = () => {
 };
   
   return (
-  <div className='w-screen h-screen box-border flex'>
-   <Sidebar />
-   <div className='w-[80%] h-full flex flex-col'>
+  <div className='w-screen h-screen box-border flex flex-col'>
     <Navbar openform={() => setshowform(true)} />
-    <div className='w-full h-full p-20 bg-gray-950'>
+   <div className='w-full h-full flex bg-black'>
+    {panelopen ? (<Sidebar onClose={() => setpanelopen(false)} />):(<img onClick={() => setpanelopen(true)} className="w-8 h-8 m-2 mt-4 cursor-pointer" src='/sidebar.svg'></img>) }
+    <div className='w-full h-full p-3 bg-gray-950'>
    {istask ? (
-  <div className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-    {tasks.map(task => (
-      <div onClick={(e) => settaskId(task._id)} key={task._id} className='min-w-[160px] border rounded-md bg-gray-900 text-white p-4 shadow-md'>
-        <h1 className='text-xl font-semibold'>{task.title}</h1>
-        <p className='text-sm font-medium'>{task.description}</p>
+  <div className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+   {tasks.map(task => (
+      <div onClick={(e) => settaskId(task._id)} key={task._id} className='min-w-[160px] border rounded-md bg-gray-900 text-white p-4 shadow-md cursor-pointer overflow-auto'>
+        <h1 className='text-2xl font-semibold pb-2'>{task.title}</h1>
+        {/* <p className='text-sm font-medium'>{task.description}</p> */}
 
-        <div className='text-sm flex justify-between mt-2'>
-          <span>{task.category}</span>
-          <span>{task.priority || "Medium"}</span>
-        </div>
+          <p><span className='text-md font-medium'>Category : </span>{task.category}</p>
+          <p><span className='text-md font-medium'>Priority : </span>{task.priority || "Medium"}</p>
+          <p><span className='text-md font-medium'>Status : </span>{task.status}</p>
+        
+          <p><span className='text-md font-medium'>End : </span>{task.endDate?.slice(0, 10)}</p>
+        
 
-        <div className='text-xs mt-1 text-gray-300'>
-          <p>Start: {task.startDate?.slice(0, 10)}</p>
-          <p>End: {task.endDate?.slice(0, 10)}</p>
-        </div>
-
-        {task.subtasks?.length > 0 && (
+        {/* {task.subtasks?.length > 0 && (
           <div className='mt-2 text-sm'>
-            <p className='font-semibold'>Subtasks:</p>
-            {task.subtasks.map((sub, i) => (
-          <div key={sub._id}>
-           <p>Title: {sub.title}</p>
-           <p>Status: {sub.isCompleted ? 'Completed' : 'Incomplete'}</p>
+          <p className='font-semibold'>Subtasks:</p>
+         {task.subtasks.map((sub, i) => (
+         <div key={sub._id}>
+         <p>Title: {sub.title}</p>
+         <p>Status: {sub.isCompleted ? 'Completed' : 'Incomplete'}</p>
          </div>
-            ))}
-          </div>
-        )}
+         ))}
+        </div>
+        )} */}
       </div>
     ))}
   </div>

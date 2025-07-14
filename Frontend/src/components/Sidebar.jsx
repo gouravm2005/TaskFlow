@@ -2,122 +2,179 @@ import { React, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Sidebar = () => {
+const Sidebar = ({ onClose }) => {
 
-const [data, setdata] = useState({firstname:'', lastname:'', email:''})
-const [clicked, setclicked] = useState(false)
+  const [data, setdata] = useState({ firstname: '', lastname: '', email: '', id:'' })
+  const [clicked, setclicked] = useState(false)
 
-const [categories, setCategories] = useState([]);
-const [newCat, setNewCat] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [newCat, setNewCat] = useState("");
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [ShowEditForm, setShowEditForm] = useState(false)
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
- useEffect(() => {
+  useEffect(() => {
 
-   const auth = JSON.parse(localStorage.getItem("auth"));
-   if(!auth || !auth.token)
-    return
-   
-   if(auth){
-    axios.get(`${import.meta.env.VITE_BASE_URL}/api/auth/profile`,{
-      headers: {
-      Authorization: `Bearer ${auth.token}`,
-    },
-    })
-    .then(res => setdata(res.data))
-    .catch(err => console.log({"profileError" : err}))
-   }
+    const auth = JSON.parse(localStorage.getItem("auth"));
+    if (!auth || !auth.token)
+      return
+
+    if (auth) {
+      axios.get(`${import.meta.env.VITE_BASE_URL}/api/auth/profile`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      })
+        .then(res => setdata(res.data))
+        .catch(err => console.log({ "profileError": err }))
+    }
 
     axios.get("http://localhost:3000/api/category/all", {
-    headers: { Authorization: `Bearer ${auth.token}` }
-  }).then(res => {
-    if (res.data.success) setCategories(res.data.categories);
-  })
-  .catch(err => console.log("error in get all category", err))
-
- }, [])
-
- const handleAddCategory = async (e) => {
-  if (e.key === "Enter" && newCat.trim() !== "") {
-    const auth = JSON.parse(localStorage.getItem("auth"))
-    if(!auth || !auth.token)
-      return;
-
-    await axios.post("http://localhost:3000/api/category/create", { name: newCat }, {
-      headers: { authorization: `Bearer ${auth.token}` }
+      headers: { Authorization: `Bearer ${auth.token}` }
+    }).then(res => {
+      if (res.data.success) setCategories(res.data.categories);
     })
-    .then(res => console.log(res))
-    .catch(err => console.log("error in create a new category", err))
-    setNewCat("");
-    setclicked(false);
-    // refresh list
-  }
-};
- 
-  return (
-    <div className='w-[200px] min-w-[200px] lg:w-[20%] lg:min-w-[200px] h-screen bg-black text-white border-2 border-gray-800 box-border overflow-hidden relative'>
+      .catch(err => console.log("error in get all category", err))
 
-      <div className='w-full h-24 p-5 flex justify-start items-center border-b-1 border-gray-600 gap-4'>
-        <img className='w-6 h-6 md:w-10 md:h-10' src="icon.svg" alt="icon" />
-        <h1 className='text-2xl md:text-3xl font-bold'>TaskFlow</h1>
-      </div>
+  }, [])
+
+  const handleAddCategory = async (e) => {
+    if (e.key === "Enter" && newCat.trim() !== "") {
+      const auth = JSON.parse(localStorage.getItem("auth"))
+      if (!auth || !auth.token)
+        return;
+
+      await axios.post("http://localhost:3000/api/category/create", { name: newCat }, {
+        headers: { authorization: `Bearer ${auth.token}` }
+      })
+        .then(res => console.log(res))
+        .catch(err => console.log("error in create a new category", err))
+      setNewCat("");
+      setclicked(false);
+      // refresh list
+    }
+  };
+
+  const handleChange = (e) => {
+    setdata({ ...data, [e.target.name]: e.target.value });
+
+  };
+
+  const handleLogout = async () => {
+    await axios.post(`${import.meta.env.VITE_BASE_URL}/api/auth/logout`);
+    localStorage.removeItem("auth");
+    navigate("/login"); // redirect to login
+
+  };
+
+  const handleSubmit = async () => {
+    const auth = JSON.parse(localStorage.getItem("auth"))
+    if (!auth || !auth.token) return;
+
+    const userId = data.id;
+
+    await axios.post(`${import.meta.env.VITE_BASE_URL}/api/auth/editprofile/${userId}`, {
+      firstname: data.firstname,
+      lastname: data.lastname,
+    }, {
+      headers: { Authorization: `Bearer ${auth.token}` }
+    })
+    .then(res => console.log(res.data))
+    .catch(err => console.log(err))
+  }
+
+  return (
+    <div className='w-[200px] min-w-[200px] lg:w-[20%] lg:min-w-[200px] h-[100%] bg-black text-white border-2 border-gray-800 box-border overflow-hidden relative'>
+
+      <img onClick={onClose} className="w-8 h-8 ml-40 md:ml-36 lg:ml-48 mt-2 cursor-pointer" src="/sideclose.svg" alt="" />
 
       <div className='w-full h-60 flex flex-col justify-center items-start pl-6 gap-8'>
         <div onClick={() => navigate('/Dashboard')} className='flex gap-2 cursor-pointer hover:text-blue-600'>
-          <img className='cursor-pointer' src="dashboard.svg" />
+          <img className='cursor-pointer' src="/dashboard.svg" />
           <h1 className='md:text-xl text-lg font-medium'>Dashboard</h1>
         </div>
         <div onClick={() => navigate('/AllTasks')} className='flex gap-2 cursor-pointer hover:text-blue-600'>
-          <img className='cursor-pointer' src="task.svg" />
+          <img className='cursor-pointer' src="/task.svg" />
           <h1 className='md:text-xl text-lg font-medium'>All Tasks</h1>
         </div>
-          <div onClick={() => navigate('/Calendar')}  className='flex gap-2 cursor-pointer hover:text-blue-600'>
-          <img className='cursor-pointer' src="calendar.svg" />
+        <div onClick={() => navigate('/Calendar')} className='flex gap-2 cursor-pointer hover:text-blue-600'>
+          <img className='cursor-pointer' src="/calendar.svg" />
           <h1 className='md:text-xl text-lg font-medium'>Calendar</h1>
         </div>
-        <div onClick={() => navigate('/Team')}  className='flex gap-2 cursor-pointer hover:text-blue-600'>
-          <img className='cursor-pointer' src="team.svg" />
-          <h1 className='md:text-xl text-lg font-medium'>Team</h1>
+        <div onClick={() => navigate('/QuickNotes')} className='flex gap-2 cursor-pointer hover:text-blue-600'>
+          <img className='w-8 h-8 cursor-pointer' src="/notes.svg" />
+          <h1 className='md:text-xl text-lg font-medium'>QuickNotes</h1>
         </div>
       </div>
 
       <div className='w-full flex flex-col justify-start items-start gap-4 p-5 mt-8'>
-        <div className='flex justify-around gap-3'>
-          <h1 className='md:text-2xl text-2xl font-semibold '>Categories</h1>
-          <img className='w-5 md:w-8' src="category.svg" />
+        <div className='flex justify-around gap-3 md:gap-6'>
+          <h1 className='md:text-2xl text-2xl pl-2 font-semibold '>Categories</h1>
+          <img className='w-5 md:w-6 mt-1' src="/category.svg" />
         </div>
-      
-       <div className='w-full h-full flex flex-col text-sm font-medium p-2 gap-2'>
-        {categories.map(cat => (
-          <div key={cat._id} onClick={() => navigate(`/Categorytask/${cat._id}`)} className='w-full text-lg font-medium ml-2'>{cat.name}</div>
-         ))}
 
-       {clicked ? (
-         <input
-          className="w-28 h-6 p-2 rounded bg-gray-600"
-          type="text"
-          placeholder="New Category"
-          value={newCat}
-          onChange={(e) => setNewCat(e.target.value)}
-          onKeyDown={handleAddCategory}
-         />
-       ) : (
-        <div onClick={() => setclicked(true)} className='w-full align-middle text-center text-md font-medium border rounded-md bg-blue-950'>+ Add</div>
-       )}
-     </div>
+        <div className='w-full h-full flex flex-col text-sm font-medium p-2 gap-2'>
+          {categories.map(cat => (
+            <div key={cat._id} onClick={() => navigate(`/Categorytask/${cat._id}`)} className='w-full text-lg font-medium ml-2 cursor-pointer'>{cat.name}</div>
+          ))}
 
-      <div className='w-full h-16 text-white border border-gray-800 absolute bottom-0'>
-        <div className='w-full p-0 md:p-3 flex justify-start items-center gap-1 md:gap-4'>
-          <div className='w-10 h-10 md:w-12 md:h-12 text-sm md:text-md rounded-full flex justify-center items-center bg-slate-500'>{data.firstname.charAt(0)}{data.lastname.charAt(0)}</div>
-          <div className='w-10 flex flex-col'>
-            <div className='flex text-md md:text-lg'><h1>{data.firstname}</h1> <h1>{data.lastname}</h1></div>
-           <h1 className='text-sm md:text-md'>{data.email}</h1>
-          </div>
+          {clicked ? (
+            <input
+              className="w-28 h-6 p-2 rounded bg-gray-600"
+              type="text"
+              placeholder="New Category"
+              value={newCat}
+              onChange={(e) => setNewCat(e.target.value)}
+              onKeyDown={handleAddCategory}
+            />
+          ) : (
+            <div onClick={() => setclicked(true)} className='w-full align-middle text-center text-md font-medium border rounded-md bg-blue-950 mt-2 cursor-pointer'>+ Add</div>
+          )}
+        </div>
+
+        <div onClick={() => setShowProfilePopup(prev => !prev)} className='w-full h-16 text-white border border-gray-800 absolute bottom-0'>
+          <div className='w-full p-0 md:p-3 flex justify-start items-center gap-1 md:gap-4 cursor-pointer'>
+            <div className='w-10 h-10 md:w-12 md:h-12 text-sm md:text-md rounded-full flex justify-center items-center bg-slate-500'>{data.firstname.charAt(0)}{data.lastname.charAt(0)}</div>
+            <div className='w-10 flex flex-col'>
+              <div className='flex text-md md:text-lg'><h1>{data.firstname}</h1> <h1>{data.lastname}</h1></div>
+              <h1 className='text-sm md:text-md'>{data.email}</h1>
+            </div>
           </div>
         </div>
-       
+
+        {showProfilePopup && (
+          <div className="absolute bottom-2 left-2 w-40 md:w-44 lg:w-60 bg-white text-black rounded shadow-md z-50">
+            <div onClick={() => setShowProfilePopup(false)} className='w-full h-2 pl-[80%] text-sm m-2 cursor-pointer'>✕</div>
+            <button
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                setShowEditForm(true); // trigger profile edit form
+                setShowProfilePopup(false);
+              }}
+            >
+              ✏️ Edit Profile
+            </button>
+            <button
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={handleLogout}
+            >
+              🚪 Logout
+            </button>
+          </div>
+        )}
+
+        {ShowEditForm && (<div className='absolute bottom-2 left-2 w-40 md:w-44 lg:w-60 h-40 p-3 gap-2 flex flex-col bg-white text-black rounded shadow-md z-50'>
+          <div onClick={() => setShowEditForm(false)} className='w-full flex justify-between gap-10 mb-2'>
+            <h1 className='w-44 md:w-20 test-3xl font-semibold'>Edit Profile</h1> <p className='text-sm cursor-pointer'>✕</p>
+          </div>
+          <input className='w-32 h-6 text-sm font-medium border' name="firstname" value={data.firstname} onChange={handleChange} />
+          <input className='w-32 h-6 text-sm font-medium border' name="lastname" value={data.lastname} onChange={handleChange} />
+          <button onClick={handleSubmit} className='w-12 h-6 rounded-md bg-blue-700 text-white text-sm font-semibold mt-2 cursor-pointer'>Save</button>
+        </div>)}
+
+      </div>
     </div>
-  </div>
   )
 }
 

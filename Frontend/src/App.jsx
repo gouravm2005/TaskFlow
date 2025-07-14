@@ -6,7 +6,7 @@ import Login from './pages/Login'
 import PrivateRoute from './components/PrivateRoute'
 import AllTasks from './pages/AllTasks'
 import Calendar from './pages/Calendar'
-import Team from './pages/Team'
+import QuickNotes from './pages/QuickNotes'
 import Categorytask from './pages/Categorytask'
 import Task from './pages/Task'
 import './App.css'
@@ -28,7 +28,7 @@ function App() {
       <Route path='/Login' element={<Login/>}/>
       <Route path='/AllTasks' element={<AllTasks/>}/>
       <Route path='/Calendar' element={<Calendar/>}/>
-      <Route path='/Team' element={<Team/>}/>
+      <Route path='/QuickNotes' element={<QuickNotes/>}/>
       <Route path="/Categorytask/:id" element={<Categorytask/>}/>
       <Route path='/Task:id' element={<Task/>}/>
     </Routes>

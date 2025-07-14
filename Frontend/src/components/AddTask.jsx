@@ -119,7 +119,7 @@ const AddTask = ({ onClose }) => {
                   setForm({ ...form, category: newCategory });
                   setNewCategory("");
                 }
-              }}
+              }}  className="border p-2 w-3/4"
             />
           )}
 
@@ -169,12 +169,12 @@ const AddTask = ({ onClose }) => {
           <div className="flex w-40 justify-around">
             <button
               onClick={onClose}
-              className="w-16 h-8 text-sm text-white bg-red-500 rounded"
+              className="w-16 h-8 text-sm text-white bg-red-500 rounded cursor-pointer"
             >
               Cancel
             </button>
 
-            <button type="submit" onSubmit={handleSubmit} className="bg-blue-600 w-16 h-8 text-sm text-white rounded">
+            <button type="submit" onSubmit={handleSubmit} className="bg-blue-600 w-16 h-8 text-sm text-white rounded cursor-pointer">
               Submit
             </button>
 

@@ -67,9 +67,9 @@ const Login = () => {
       </div>
 
      </div>
-      <button className="w-[80%] rounded-md text-white bg-blue-600 p-2 mt-8 ml-9" type="Submit">Login</button>
+      <button className="w-[80%] rounded-md text-white bg-blue-600 p-2 mt-8 ml-9 cursor-pointer" type="Submit">Login</button>
 
-     <p className="text-white text-md p-5 ml-9">Don't Have an account ? <Link to='/Register'><span className='text-blue-600 underline'>Register here</span></Link></p>
+     <p className="text-white text-md p-5 ml-9">Don't have an account ? <Link to='/Register'><span className='text-blue-600 underline cursor-pointer'>Register here</span></Link></p>
 
     </form>
    </div>

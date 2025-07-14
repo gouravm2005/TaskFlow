@@ -89,11 +89,37 @@ export const getprofile = async(req, res) => {
       firstname: user.fullname.firstname,
       lastname: user.fullname.lastname,
       email: user.email,
+      id: user._id,
     });
   } catch (error) {
     res.status(500).json({message : 'failed to fetch profile'})
   }
 }
+
+export const editprofile = async (req, res) => {
+  try {
+    const { firstname, lastname } = req.body;
+    console.log(req.body)
+    console.log(req.params.id)
+
+    const updatedUser = await userModel.findByIdAndUpdate(
+      req.params.id,
+      { 
+        "fullname.firstname": firstname,
+        "fullname.lastname": lastname
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({ success: true, message: "Profile updated", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 export const logoutUser = async(req, res) =>{
 
