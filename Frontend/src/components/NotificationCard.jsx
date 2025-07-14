@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const SearchCard = ({ query = "", onSelectTask }) => {
+const NotificationCard = ({onClose}) => {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
@@ -18,27 +18,20 @@ const SearchCard = ({ query = "", onSelectTask }) => {
     const filtered = (tasks || []).filter(
     (task) =>
       task &&
-      typeof task.title === "string" &&
-      query &&
-      task.title.toLowerCase().includes(query.toLowerCase())
+      task.status === 'Completed'
    );
 
   return (
-    <div className="absolute top-8 h-20 w-44 md:w-60 pl-2 bg-gray-700 text-white rounded shadow-md z-50 max-h-60 overflow-y-auto">
+    <div className="absolute top-24 w-[70%] md:w-[40%] p-6 bg-white text-black rounded shadow-md z-50 max-h-80 overflow-y-auto">
+     <div className="w-full flex justify-between">
+      <h1 className="text-xl md:text-2xl font-bold pb-4">Notifications</h1>
+     <button onClick={onClose} className="text-xl md:text-xl font-bold text-gray-600 pb-6">✕</button>
+     </div>
+    
       {filtered.length > 0 ? (
         filtered.map(task => (
-          <div
-            key={task._id}
-            // onClick={() => onSelectTask(task._id)}
-              onMouseDown={(e) => {
-              e.preventDefault();
-              onSelectTask(task._id);
-              setSearchText("");
-              setShowSuggestions(false);
-             }}
-            className="p-2 hover:bg-blue-300 cursor-pointer text-sm"
-          >
-            {task.title}
+          <div key={task._id} className="w-full flex justify-between border shadow-md shadow-neutral-500 p-3">
+            <p>{task.title}</p> <p>{task.status}</p>
           </div>
         ))
       ) : (
@@ -48,4 +41,4 @@ const SearchCard = ({ query = "", onSelectTask }) => {
   );
 };
 
-export default SearchCard;
+export default NotificationCard;

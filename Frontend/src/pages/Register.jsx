@@ -86,9 +86,9 @@ const Register = () => {
       </div>
 
      </div>
-      <button className="w-[80%] rounded-md text-white bg-blue-600 p-2 mt-8 ml-9" type="Submit">Register</button>
+      <button className="w-[80%] rounded-md text-white bg-blue-600 p-2 mt-8 ml-9 cursor-pointer" type="Submit">Register</button>
 
-     <p className="text-white text-md p-5 ml-9">Already have an account ? <Link to='/Login'><span className='text-blue-600 underline'>Login here</span></Link></p>
+     <p className="text-white text-md p-5 ml-9">Already have an account ? <Link to='/Login'><span className='text-blue-600 underline cursor-pointer'>Login here</span></Link></p>
 
     </form>
    </div>

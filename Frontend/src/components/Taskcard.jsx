@@ -73,7 +73,9 @@ const TaskCard = ({ taskId, onClose, onUpdate }) => {
   if (loading) return <div className="fixed right-0 w-[80%] h-full bg-white p-6">Loading...</div>;
 
 return (
-  <div className="fixed top-20 right-20 w-[70%] h-[80%] bg-white rounded-2xl z-50 overflow-auto p-6 shadow-2xl border border-gray-300 font-sans text-gray-800">
+<div className="w-screen h-screen relative">
+ <div className="fixed top-20 left-1/2 transform -translate-x-1/2 w-[90%] max-w-3xl h-[80%] bg-white text-black z-[9999] rounded-xl shadow-2xl p-6 overflow-auto">
+  {console.log("taskcard")}
     <button onClick={onClose} className="absolute top-2 right-4 text-2xl text-gray-500 hover:text-red-500">✕</button>
 
     <h1 className="text-3xl font-bold mb-6 border-b pb-2 text-blue-800">Task Details</h1>
@@ -185,11 +187,11 @@ return (
       <div className="flex flex-col gap-2 text-lg">
         <h2 className="text-2xl font-semibold text-blue-700">{task.title}</h2>
         <p>{task.description}</p>
-        <p>Category: {task.category}</p>
-        <p>Priority: {task.priority}</p>
-        <p>Status: {task.status}</p>
-        <p>Start: {task.startDate?.split("T")[0]}</p>
-        <p>End: {task.endDate?.split("T")[0]}</p>
+        <p><span className="font-semibold text-blue-700">Category:</span> {task.category}</p>
+        <p><span className="font-semibold text-blue-700">Priority:</span> {task.priority}</p>
+        <p><span className="font-semibold text-blue-700">Status:</span> {task.status}</p>
+        <p><span className="font-semibold text-blue-700">Start:</span> {task.startDate?.split("T")[0]}</p>
+        <p><span className="font-semibold text-blue-700">End:</span> {task.endDate?.split("T")[0]}</p>
 
         <div className="mt-4">
           <h3 className="text-xl font-semibold mb-1">Subtasks:</h3>
@@ -218,6 +220,8 @@ return (
       </button>
     </div>
   </div>
+</div>
+  
 );
 
 };
