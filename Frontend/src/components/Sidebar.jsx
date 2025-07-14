@@ -30,7 +30,7 @@ const Sidebar = ({ onClose }) => {
         .catch(err => console.log({ "profileError": err }))
     }
 
-    axios.get("http://localhost:3000/api/category/all", {
+    axios.get(`${import.meta.env.VITE_BASE_URL}/api/category/all`, {
       headers: { Authorization: `Bearer ${auth.token}` }
     }).then(res => {
       if (res.data.success) setCategories(res.data.categories);
@@ -45,7 +45,7 @@ const Sidebar = ({ onClose }) => {
       if (!auth || !auth.token)
         return;
 
-      await axios.post("http://localhost:3000/api/category/create", { name: newCat }, {
+      await axios.post(`${import.meta.env.VITE_BASE_URL}/api/category/create`, { name: newCat }, {
         headers: { authorization: `Bearer ${auth.token}` }
       })
         .then(res => console.log(res))
