@@ -14,7 +14,7 @@ const Login = () => {
  const handleSubmit = async(e) => {
   e.preventDefault();
   try {
-   const res = await axios.post('http://localhost:3000/api/auth/login', form, { withCredentials: true });
+   const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/auth/login`, form, { withCredentials: true });
    setMessage(res.data.message);
 
    console.log("Token received:", res.data.token);
