@@ -37,7 +37,7 @@
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/gouravm2005/taskflow.git
+git clone https://github.com/gouravm2005/TaskFlow.git
 cd taskflow
 ```
 
