@@ -32,35 +32,23 @@ const Sidebar = ({ onClose }) => {
         .catch(err => console.log({ "profileError": err }))
     }
 
+    getcategory();
+
+  }, [])
+
+  const getcategory = async () => {
+     const auth = JSON.parse(localStorage.getItem("auth"));
+    if (!auth || !auth.token)
+      return;
+
     axios.get(`${import.meta.env.VITE_BASE_URL}/api/category/all`, {
       headers: { Authorization: `Bearer ${auth.token}` }
     }).then(res => {
       if (res.data.success) setCategories(res.data.categories);
     })
       .catch(err => console.log("error in get all category", err))
+  }
 
-  }, [])
-
-<<<<<<< HEAD
-=======
-  const handleAddCategory = async (e) => {
-    if (e.key === "Enter" && newCat.trim() !== "") {
-      const auth = JSON.parse(localStorage.getItem("auth"))
-      if (!auth || !auth.token)
-        return;
-
-      await axios.post(`${import.meta.env.VITE_BASE_URL}/api/category/create`, { name: newCat }, {
-        headers: { authorization: `Bearer ${auth.token}` }
-      })
-        .then(res => console.log(res))
-        .catch(err => console.log("error in create a new category", err))
-      setNewCat("");
-      setclicked(false);
-      // refresh list
-    }
-  };
-
->>>>>>> 67fb7f2cba99dcb3bd6060f4f193d6d1917521be
   const handleChange = (e) => {
     setdata({ ...data, [e.target.name]: e.target.value });
 
@@ -100,7 +88,7 @@ const Sidebar = ({ onClose }) => {
       )
         .then(() => {
           setEditCatId(null);
-          useEffect();
+          getcategory();
         })
         .catch(err => console.log("error in updating category", err));
     }
@@ -117,7 +105,7 @@ const Sidebar = ({ onClose }) => {
       headers: { authorization: `Bearer ${auth.token}` }
     })
       .then(() => {
-        useEffect();
+       getcategory();
       })
       .catch(err => console.log("error in deleting category", err));
   };
@@ -140,7 +128,7 @@ const Sidebar = ({ onClose }) => {
 
       setEditCatId(null);
       setEditCatName('');
-      useEffect();
+      getcategory();
     }
   };
 

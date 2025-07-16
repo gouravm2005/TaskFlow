@@ -1,4 +1,5 @@
 import Category from "../models/category.js";
+import taskModel from "../models/task.js";
 
 export const createCategory = async (req, res) => {
   const { name } = req.body;
@@ -32,9 +33,17 @@ export const editCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
   const { id } = req.params;
 
-  try {
-    await Category.findByIdAndDelete(id);
-    res.json({ success: true, message: "Deleted" });
+ try {
+    const { id } = req.params;
+
+    const deletedCat = await categoryModel.findByIdAndDelete(id);
+    if (!deletedCat) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
+
+    await taskModel.deleteMany({ categoryId: id });
+
+    res.status(200).json({ success: true, message: "Category and its tasks deleted" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
