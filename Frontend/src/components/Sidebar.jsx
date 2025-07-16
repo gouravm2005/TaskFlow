@@ -4,13 +4,15 @@ import axios from 'axios';
 
 const Sidebar = ({ onClose }) => {
 
-  const [data, setdata] = useState({ firstname: '', lastname: '', email: '', id:'' })
+  const [data, setdata] = useState({ firstname: '', lastname: '', email: '', id: '' })
   const [clicked, setclicked] = useState(false)
 
   const [categories, setCategories] = useState([]);
   const [newCat, setNewCat] = useState("");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [ShowEditForm, setShowEditForm] = useState(false)
+  const [editCatId, setEditCatId] = useState(null);
+  const [editCatName, setEditCatName] = useState("");
 
   const navigate = useNavigate();
 
@@ -30,7 +32,7 @@ const Sidebar = ({ onClose }) => {
         .catch(err => console.log({ "profileError": err }))
     }
 
-    axios.get("http://localhost:3000/api/category/all", {
+    axios.get(`${import.meta.env.VITE_BASE_URL}/api/category/all`, {
       headers: { Authorization: `Bearer ${auth.token}` }
     }).then(res => {
       if (res.data.success) setCategories(res.data.categories);
@@ -38,23 +40,6 @@ const Sidebar = ({ onClose }) => {
       .catch(err => console.log("error in get all category", err))
 
   }, [])
-
-  const handleAddCategory = async (e) => {
-    if (e.key === "Enter" && newCat.trim() !== "") {
-      const auth = JSON.parse(localStorage.getItem("auth"))
-      if (!auth || !auth.token)
-        return;
-
-      await axios.post("http://localhost:3000/api/category/create", { name: newCat }, {
-        headers: { authorization: `Bearer ${auth.token}` }
-      })
-        .then(res => console.log(res))
-        .catch(err => console.log("error in create a new category", err))
-      setNewCat("");
-      setclicked(false);
-      // refresh list
-    }
-  };
 
   const handleChange = (e) => {
     setdata({ ...data, [e.target.name]: e.target.value });
@@ -80,9 +65,64 @@ const Sidebar = ({ onClose }) => {
     }, {
       headers: { Authorization: `Bearer ${auth.token}` }
     })
-    .then(res => console.log(res.data))
-    .catch(err => console.log(err))
+      .then(res => console.log(res.data))
+      .catch(err => console.log(err))
   }
+
+  const handleEditCategory = async (e, id) => {
+    if (e.key === "Enter" && editCatName.trim() !== "") {
+      const auth = JSON.parse(localStorage.getItem("auth"));
+      if (!auth || !auth.token) return;
+
+      await axios.put(`${import.meta.env.VITE_BASE_URL}/api/category/edit/${id}`,
+        { name: editCatName },
+        { headers: { authorization: `Bearer ${auth.token}` } }
+      )
+        .then(() => {
+          setEditCatId(null);
+          useEffect();
+        })
+        .catch(err => console.log("error in updating category", err));
+    }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    const confirm = window.confirm("Delete this category?");
+    if (!confirm) return;
+
+    const auth = JSON.parse(localStorage.getItem("auth"));
+    if (!auth || !auth.token) return;
+
+    await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/category/delete/${id}`, {
+      headers: { authorization: `Bearer ${auth.token}` }
+    })
+      .then(() => {
+        useEffect();
+      })
+      .catch(err => console.log("error in deleting category", err));
+  };
+
+  const handleCreateCategory = async (e) => {
+    if (e.key === 'Enter' && editCatName.trim() !== '') {
+      const auth = JSON.parse(localStorage.getItem("auth"));
+      if (!auth?.token) return;
+
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/api/category/create`,
+          { name: editCatName },
+          { headers: { Authorization: `Bearer ${auth.token}` } }
+        );
+        setCategories(prev => [...prev, res.data.category]);
+      } catch (err) {
+        console.error("Create category failed", err);
+      }
+
+      setEditCatId(null);
+      setEditCatName('');
+      useEffect();
+    }
+  };
 
   return (
     <div className='w-[200px] min-w-[200px] lg:w-[20%] lg:min-w-[200px] h-[100%] bg-black text-white border-2 border-gray-800 box-border overflow-hidden relative'>
@@ -116,22 +156,72 @@ const Sidebar = ({ onClose }) => {
 
         <div className='w-full h-full flex flex-col text-sm font-medium p-2 gap-2'>
           {categories.map(cat => (
-            <div key={cat._id} onClick={() => navigate(`/Categorytask/${cat._id}`)} className='w-full text-lg font-medium ml-2 cursor-pointer'>{cat.name}</div>
+            <div
+              key={cat._id}
+              className="flex items-center justify-between group w-full"
+            >
+              {editCatId === cat._id ? (
+                <input
+                  className="w-28 h-6 p-2 rounded bg-gray-600"
+                  type="text"
+                  value={editCatName}
+                  onChange={(e) => setEditCatName(e.target.value)}
+                  onKeyDown={(e) => handleEditCategory(e, cat._id)}
+                  onBlur={() => setEditCatId(null)}
+                  autoFocus
+                />
+              ) : (
+                <div
+                  onClick={() => navigate(`/Categorytask/${cat._id}`)}
+                  className="text-lg font-semibold cursor-pointer group-hover:underline"
+                >
+                  {cat.name}
+                </div>
+              )}
+
+              <div className="opacity-0 group-hover:opacity-100 flex gap-2">
+                <img
+                  src="/edit.svg"
+                  alt="edit"
+                  onClick={() => {
+                    setEditCatId(cat._id);
+                    setEditCatName(cat.name);
+                  }}
+                  className="w-4 h-4 cursor-pointer"
+                />
+                <img
+                  src="/delete.svg"
+                  alt="delete"
+                  onClick={() => handleDeleteCategory(cat._id)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+            </div>
           ))}
 
-          {clicked ? (
+          {editCatId === 'new' ? (
             <input
               className="w-28 h-6 p-2 rounded bg-gray-600"
               type="text"
-              placeholder="New Category"
-              value={newCat}
-              onChange={(e) => setNewCat(e.target.value)}
-              onKeyDown={handleAddCategory}
+              value={editCatName}
+              onChange={(e) => setEditCatName(e.target.value)}
+              onKeyDown={handleCreateCategory}
+              onBlur={() => setEditCatId(null)}
+              autoFocus
             />
           ) : (
-            <div onClick={() => setclicked(true)} className='w-full align-middle text-center text-md font-medium border rounded-md bg-blue-950 mt-2 cursor-pointer'>+ Add</div>
+            <div
+              onClick={() => {
+                setEditCatId('new');
+                setEditCatName('');
+              }}
+              className='w-full h-7 text-center text-md font-medium border rounded-md bg-blue-950 px-2 py-1 mt-2 cursor-pointer hover:bg-blue-800'
+            >
+              + Add Category
+            </div>
           )}
         </div>
+
 
         <div onClick={() => setShowProfilePopup(prev => !prev)} className='w-full h-16 text-white border border-gray-800 absolute bottom-0'>
           <div className='w-full p-0 md:p-3 flex justify-start items-center gap-1 md:gap-4 cursor-pointer'>
@@ -149,7 +239,7 @@ const Sidebar = ({ onClose }) => {
             <button
               className="w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer"
               onClick={() => {
-                setShowEditForm(true); // trigger profile edit form
+                setShowEditForm(true);
                 setShowProfilePopup(false);
               }}
             >
